@@ -2,11 +2,11 @@
 // https://docs.swift.org/swift-book
 import Foundation
 
-enum NetworkError: Error {
+public enum NetworkError: Error {
     case decodeError
 }
 
-class NetworkService {
+public class NetworkService {
     static var networkService = NetworkService()
     
     private init(){}
