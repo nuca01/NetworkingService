@@ -10,7 +10,7 @@ public class NetworkService {
     public static var networkService = NetworkService()
     
     private init(){}
-    func getData<T: Decodable>(urlString: String, comletion: @escaping (Result<T,Error>) ->(Void)) {
+    public func getData<T: Decodable>(urlString: String, comletion: @escaping (Result<T,Error>) ->(Void)) {
         let url = URL(string: urlString)!
 
         URLSession.shared.dataTask(with: URLRequest(url: url)) { data, response, error in
