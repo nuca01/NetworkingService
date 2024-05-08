@@ -10,7 +10,7 @@ public class NetworkService {
     public static var networkService = NetworkService()
     
     private init(){}
-    public func getData<T: Decodable>(urlString: String, comletion: @escaping (Result<T,Error>) ->(Void)) {
+    public func getData<T: Decodable>(urlString: String, completion: @escaping (Result<T,Error>) -> (Void)) {
         let url = URL(string: urlString)!
 
         URLSession.shared.dataTask(with: URLRequest(url: url)) { data, response, error in
@@ -33,10 +33,10 @@ public class NetworkService {
                 let decoder = JSONDecoder()
                 let object = try decoder.decode(T.self, from: data)
                 DispatchQueue.main.async {
-                    comletion(.success(object))
+                    completion(.success(object))
                 }
             } catch {
-                comletion(.failure(NetworkError.decodeError))
+                completion(.failure(NetworkError.decodeError))
             }
         }.resume()
     }
