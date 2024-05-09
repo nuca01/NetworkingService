@@ -28,11 +28,11 @@ public class NetworkService {
                 return
             }
             guard let data else { return }
-
+            
             do {
                 let decoder = JSONDecoder()
                 let object = try decoder.decode(T.self, from: data)
-                    completion(.success(object))
+                completion(.success(object))
                 
             } catch {
                 completion(.failure(NetworkError.decodeError))
