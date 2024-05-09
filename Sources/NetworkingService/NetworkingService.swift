@@ -32,7 +32,9 @@ public class NetworkService {
             do {
                 let decoder = JSONDecoder()
                 let object = try decoder.decode(T.self, from: data)
-                completion(.success(object))
+                DispatchQueue.main.async {
+                    completion(.success(object))
+                }
                 
             } catch {
                 completion(.failure(NetworkError.decodeError))
