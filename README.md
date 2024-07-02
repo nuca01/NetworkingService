@@ -1,32 +1,59 @@
 # NetworkService
 
-This is a simple Swift utility for making network requests and decoding JSON responses.
+This is a simple Swift utility for making network requests and decoding and encoding JSON responses.
 
 ## Usage
 
 1. **Importing the Module**:
    ```swift
-   import Foundation
+   import NetworkingService
    ```
 
-2. **Creating Network Requests**:
+2. **Using the NetworkService:**:
    ```swift
-   NetworkService.networkService.getData(urlString: "YOUR_URL_HERE") { (result: Result<YourDecodableType, Error>) in
-       switch result {
-       case .success(let data):
-           // Handle successful response
-       case .failure(let error):
-           // Handle error
-       }
+struct MyEndPoint: EndPoint {
+    var host: String = "api.example.com"
+    var path: String = "/data"
+    var method: String = "GET"
+    var headers: [String : String]? = ["Content-Type": "application/json"]
+    var body: Data? = nil
+    var queryItems: [URLQueryItem]? = [URLQueryItem(name: "query", value: "example")]
+    var pathParams: [String : String]? = nil
+}
+
+// Make a request
+NetworkService.shared.sendRequest(endpoint: MyEndPoint()) { (result: Result<MyResponseModel, NetworkError>) in
+    switch result {
+    case .success(let responseModel):
+        print("Success: \(responseModel)")
+    case .failure(let error):
+        print("Error: \(error)")
+    }
+}
    }
    ```
 
-   Replace `YourDecodableType` with the type you expect to receive from the server.
-
 ## Error Handling
 
-The `getData` function returns a `Result` enum containing either the decoded data or an error. In case of an error, it returns a `NetworkError.decodeError` if there's an issue decoding the received data.
+The `getData` function returns a `Result` enum containing either the decoded data or an error. In case of an error, it returns a NetworkError. 
 
-## Note
+   ```swift
+   NetworkService.shared.sendRequest(endpoint: MyEndPoint()) { (result: Result<MyResponseModel, NetworkError>) in
+    switch result {
+    case .success(let responseModel):
+        print("Success: \(responseModel)")
+    case .failure(let error):
+        switch error {
+        case .invalidURL:
+            print("Invalid URL")
+        case .unexpectedStatusCode(let message):
+            print("Unexpected Status Code: \(message)")
+        case .unknown:
+            print("Unknown Error")
+        case .decode:
+            print("Decode Error")
+        }
+    }
+}
+    ```
 
-Ensure that your URL is valid and that your server responds with a JSON object compatible with the `YourDecodableType` you specify.

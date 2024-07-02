@@ -2,43 +2,65 @@
 // https://docs.swift.org/swift-book
 import Foundation
 
+//MARK: - enum NetworkError
 public enum NetworkError: Error {
-    case decodeError
+    case invalidURL
+    case unexpectedStatusCode(String = "The status code returned was unexpected.")
+    case unknown
+    case decode
 }
 
-public class NetworkService {
-    public static var networkService = NetworkService()
+//MARK: - class NetworkService
+public final class NetworkingService {
+    public static var shared = NetworkingService()
     
     private init(){}
-    public func getData<T: Decodable>(urlString: String, completion: @escaping (Result<T,Error>) -> (Void)) {
-        let url = URL(string: urlString)!
-
-        URLSession.shared.dataTask(with: URLRequest(url: url)) { data, response, error in
-            
-            if let error {
-                print(error.localizedDescription)
-            }
-            
-            guard let response = response as? HTTPURLResponse else {
+    
+    public func sendRequest<T: Decodable>(endpoint: EndPoint, resultHandler: @escaping (Result<T, NetworkError>) -> Void) {
+        
+        guard let urlRequest = createRequest(endPoint: endpoint) else {
+            return
+        }
+        
+        let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            guard error == nil else {
+                resultHandler(.failure(.invalidURL))
                 return
             }
-            
-            guard (200...299).contains(response.statusCode) else {
-                print("wrong response")
+            guard let response = response as? HTTPURLResponse, 200...299 ~= response.statusCode else {
+                resultHandler(.failure(.unexpectedStatusCode(response?.description ?? "An unknown error occurred.")))
                 return
             }
-            guard let data else { return }
-            
-            do {
-                let decoder = JSONDecoder()
-                let object = try decoder.decode(T.self, from: data)
-                DispatchQueue.main.async {
-                    completion(.success(object))
-                }
-                
-            } catch {
-                completion(.failure(NetworkError.decodeError))
+            guard let data = data else {
+                resultHandler(.failure(.unknown))
+                return
             }
-        }.resume()
+            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else {
+                resultHandler(.failure(.decode))
+                return
+            }
+            resultHandler(.success(decodedResponse))
+        }
+        urlTask.resume()
+    }
+    
+    //MARK: - private helper method
+    private func createRequest(endPoint: EndPoint) -> URLRequest? {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = endPoint.scheme
+        urlComponents.host = endPoint.host
+        urlComponents.path = endPoint.path
+        urlComponents.queryItems = endPoint.queryItems
+        guard let url = urlComponents.url else {
+            return nil
+        }
+        let encoder = JSONEncoder()
+        var request = URLRequest(url: url)
+        request.httpMethod = endPoint.method
+        request.allHTTPHeaderFields = endPoint.headers
+        if let body = endPoint.body {
+            request.httpBody = try? encoder.encode(body)
+        }
+        return request
     }
 }
