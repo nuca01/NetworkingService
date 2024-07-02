@@ -10,7 +10,7 @@ This is a simple Swift utility for making network requests and decoding and enco
    ```
 
 2. **Using the NetworkService:**:
-   ```swift
+  ```swift
 struct MyEndPoint: EndPoint {
     var host: String = "api.example.com"
     var path: String = "/data"
@@ -54,6 +54,5 @@ The `getData` function returns a `Result` enum containing either the decoded dat
             print("Decode Error")
         }
     }
-}
-    ```
+} 
 
