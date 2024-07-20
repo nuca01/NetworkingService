@@ -28,7 +28,8 @@ public final class NetworkingService {
                 return
             }
             guard let response = response as? HTTPURLResponse, 200...299 ~= response.statusCode else {
-                resultHandler(.failure(.unexpectedStatusCode(response?.description ?? "An unknown error occurred.")))
+                let errorResponse = String(data: data ?? Data(), encoding: .utf8)
+                resultHandler(.failure(.unexpectedStatusCode(errorResponse ?? "An unknown error occurred.")))
                 return
             }
             guard let data = data else {
