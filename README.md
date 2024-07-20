@@ -10,8 +10,8 @@ This is a simple Swift utility for making network requests and decoding and enco
    ```
 
 2. **Using the NetworkService:**:
-   ```swift
-   struct MyEndPoint: EndPoint {
+  ```swift
+struct MyEndPoint: EndPoint {
     var host: String = "api.example.com"
     var path: String = "/data"
     var method: String = "GET"
@@ -19,15 +19,16 @@ This is a simple Swift utility for making network requests and decoding and enco
     var body: Data? = nil
     var queryItems: [URLQueryItem]? = [URLQueryItem(name: "query", value: "example")]
     var pathParams: [String : String]? = nil
-    }
-    // Make a request
-    NetworkService.shared.sendRequest(endpoint: MyEndPoint()) { (result: Result<MyResponseModel, NetworkError>) in
+}
+
+// Make a request
+NetworkService.shared.sendRequest(endpoint: MyEndPoint()) { (result: Result<MyResponseModel, NetworkError>) in
     switch result {
     case .success(let responseModel):
         print("Success: \(responseModel)")
     case .failure(let error):
         print("Error: \(error)")
-}
+    }
 }
    }
    ```
@@ -53,6 +54,5 @@ The `getData` function returns a `Result` enum containing either the decoded dat
             print("Decode Error")
         }
     }
-}
-    ```
+} 
 
